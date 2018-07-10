@@ -22,6 +22,7 @@ import logging
 from homekit import AccessoryServer
 from homekit.model import Accessory
 from homekit.model.services import LightBulbService, ThermostatService, OutletService, FanService
+from homekit.model.characteristics import TargetTemperatureCharacteristic, TargetHeatingCoolingStateCharacteristic
 
 def light_switched(new_value):
     print('=======>  light switched: {x}'.format(x=new_value))
@@ -31,7 +32,13 @@ def outlet_switched(new_value):
     
 def fan_switched(new_value):
     print('=======>  fan switched: {x}'.format(x=new_value))  
+    
+def th_target_temperature(new_value):
+    print('=======>  th target temperature: {x}'.format(x=new_value)) 
 
+def th_target_state(new_value):
+    print('=======>  th target state: {x}'.format(x=new_value))    
+    
 if __name__ == '__main__':
     # setup logger
     logger = logging.getLogger('accessory')
@@ -55,8 +62,9 @@ if __name__ == '__main__':
 
         accessory2 = Accessory('thermostat', 'lusiardi.de', 'Demoserver', '0002', '0.1')
         thermostatService = ThermostatService()
-        #thermostatService.set_on_set_callback(light_switched)
-        # TargetHeatingCoolingStateCharacteristic
+        # Set callbacks
+        thermostatService.set_target_temperature_set_callback(th_target_temperature)
+        thermostatService.set_target_heating_cooling_state_set_callback(th_target_state)
         accessory2.services.append(thermostatService)
         httpd.add_accessory(accessory2)
         
