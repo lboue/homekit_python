@@ -21,14 +21,16 @@ import logging
 
 from homekit import AccessoryServer
 from homekit.model import Accessory
-from homekit.model.services import LightBulbService, ThermostatService, OutletService
-
+from homekit.model.services import LightBulbService, ThermostatService, OutletService, FanService
 
 def light_switched(new_value):
     print('=======>  light switched: {x}'.format(x=new_value))
 
 def outlet_switched(new_value):
-    print('=======>  outlet switched: {x}'.format(x=new_value))
+    print('=======>  outlet switched: {x}'.format(x=new_value))  
+    
+def fan_switched(new_value):
+    print('=======>  fan switched: {x}'.format(x=new_value))  
 
 if __name__ == '__main__':
     # setup logger
@@ -53,7 +55,8 @@ if __name__ == '__main__':
 
         accessory2 = Accessory('thermostat', 'lusiardi.de', 'Demoserver', '0002', '0.1')
         thermostatService = ThermostatService()
-        thermostatService.set_on_set_callback(light_switched)
+        #thermostatService.set_on_set_callback(light_switched)
+        # TargetHeatingCoolingStateCharacteristic
         accessory2.services.append(thermostatService)
         httpd.add_accessory(accessory2)
         
@@ -61,20 +64,29 @@ if __name__ == '__main__':
         outletService = OutletService()
         outletService.set_on_set_callback(outlet_switched)
         accessory3.services.append(outletService)
+        #  OutletInUseCharacteristic(AbstractCharacteristic):
         httpd.add_accessory(accessory3)
+        
+        accessory4 = Accessory('fan', 'lusiardi.de', 'Demoserver', '0003', '0.1')
+        fanService = FanService()
+        fanService.set_on_set_callback(outlet_switched)
+        accessory4.services.append(fanService)
+        #  OutletInUseCharacteristic(AbstractCharacteristic):
+        httpd.add_accessory(accessory4)
         
         httpd.publish_device()
         
         logger.info('published lightBulb device and start serving')
         logger.info('published thermostat device and start serving')
         logger.info('published outlet device and start serving')
+        logger.info('published fan device and start serving')
         
         httpd.serve_forever()
     except KeyboardInterrupt:
         pass
 
     # unpublish the device and shut down
-    logger.info('unpublish device')
+    logger.info('unpublish devices')
     httpd.unpublish_device()
     httpd.shutdown()
 
