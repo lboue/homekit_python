@@ -21,12 +21,14 @@ import logging
 
 from homekit import AccessoryServer
 from homekit.model import Accessory
-from homekit.model.services import LightBulbService
+from homekit.model.services import LightBulbService, ThermostatService, OutletService
 
 
 def light_switched(new_value):
     print('=======>  light switched: {x}'.format(x=new_value))
 
+def outlet_switched(new_value):
+    print('=======>  outlet switched: {x}'.format(x=new_value))
 
 if __name__ == '__main__':
     # setup logger
@@ -43,14 +45,30 @@ if __name__ == '__main__':
     try:
         httpd = AccessoryServer(config_file, logger)
 
-        accessory = Accessory('Testlicht', 'lusiardi.de', 'Demoserver', '0001', '0.1')
+        accessory = Accessory('lightBulb', 'lusiardi.de', 'Demoserver', '0001', '0.1')
         lightBulbService = LightBulbService()
         lightBulbService.set_on_set_callback(light_switched)
         accessory.services.append(lightBulbService)
         httpd.add_accessory(accessory)
 
+        accessory2 = Accessory('thermostat', 'lusiardi.de', 'Demoserver', '0002', '0.1')
+        thermostatService = ThermostatService()
+        thermostatService.set_on_set_callback(light_switched)
+        accessory2.services.append(thermostatService)
+        httpd.add_accessory(accessory2)
+        
+        accessory3 = Accessory('outlet', 'lusiardi.de', 'Demoserver', '0003', '0.1')
+        outletService = OutletService()
+        outletService.set_on_set_callback(outlet_switched)
+        accessory3.services.append(outletService)
+        httpd.add_accessory(accessory3)
+        
         httpd.publish_device()
-        logger.info('published device and start serving')
+        
+        logger.info('published lightBulb device and start serving')
+        logger.info('published thermostat device and start serving')
+        logger.info('published outlet device and start serving')
+        
         httpd.serve_forever()
     except KeyboardInterrupt:
         pass
